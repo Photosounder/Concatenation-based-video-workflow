@@ -37,7 +37,7 @@ When using Vegas Pro there's one more thing I must keep in mind: making sure the
 
 FFMPEG can concatenate multiple video files into one without re-encoding them, all without problem provided that the video streams are encoded the same way. What must be done to achieve this is as follows:
 
-- Make two lists of files, one `video_concat_list.txt` and one `audio_concat_list.txt`, list the files in order of appearance in each file, for instance put "file '01. First scene.mp4'" as the first line of "video_concat_list.
+- Make two lists of files, one `video_concat_list.txt` and one `audio_concat_list.txt`, list the files in order of appearance in each file.
 
 Example of `video_concat_list.txt`:
 
