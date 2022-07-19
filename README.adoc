@@ -1,6 +1,6 @@
 = My concatenation-based video workflow
 
-This is how I now produce tutorial videos, by creating separate videos for each chapter then putting them together. There's a degree of obviousness to the concept, however the technical details to achieve seemless transitions are tricky, so describing the process in sufficient detail is well-warranted.
+This is how I now produce tutorial videos, by creating separate videos for each chapter then putting them together. There's a degree of obviousness to the concept, however the technical details to achieve seamless transitions are tricky, so describing the process in sufficient detail is well-warranted.
 
 == The problem
 
@@ -11,16 +11,63 @@ Creating YouTube videos that last several minutes or more containing many scenes
 
 == The solution
 
-My solution is to produce "chapters" completely independently from each other, render them as independent files, then join them together using a batch file that puts all the chapters together in just a few seconds without generation loss (the video streams aren't re-encoded). Usually there's a natural 
+My solution is to produce "chapters" completely independently from each other, render them as independent files, then join them together using a batch file that puts all the chapters together in just a few seconds without generation loss (the video streams aren't re-encoded). Usually there's a natural logical way to separate the contents of the video, which occur when there's a change in subject, when both the video and the audio switch to something different.
+
+So by producing these chapters as separate videos which are ideally 30 to 60 seconds long and contain no more than half a dozen different scenes or footage sources, the project for each of these chapters in the video editor remains simple and therefore flexible, the rendering time acceptable, and because of the concatenation approach which is done is just a very few seconds you can update a scene in a video of any duration and have the full length final video ready in a record time (like, under a minute).
+
+However there are a few things to keep in mind, and there are technical problems to work around, like how you cannot use a compressed audio format for each chapter because they add an audible silent gap at the beginning of each video which gets in the way of obtaining a seamless result.
 
 == The workflow
 
-To create scenes separately in Vegas Pro then put them together with ffmpeg the following must be done:
+=== In the video editor
 
-- The sound at the end of each scene must be trimmed to the previous video frame and the ends of the video and audio tracks must be aligned
-- Make sure the ends of the audio track don't contain undesirable fade ins/outs added by the editor that would ruin the seemlessness.
-- When exporting make sure the Vegas loop region isn't set. The loop region isn't contained in the project and it's kept when closing a project and opening another, so restarting Vegas will make it go away.
-- Audio must be rendered separately to a WAV file, only as needed of course
-- Video must be rendered separately to a MP4 file, all with the same encoding parameters of course, without sound because the audio of an MP4 would contain a silence padding at the start of about 44 milliseconds which would ruin everything
-- Make two lists of files, one "video_concat_list.txt" and one "audio_concat_list.txt", put the files in order of appearance in each file, for instance put "file '01. First scene.mp4'" as the first line of "video_concat_list.txt"
-- run "concat.bat", which calls ffmpeg, takes the two concat lists as inputs, concats the video streams without reencoding but concats the WAV sounds into a compressed stream, all into one final MP4 file.
+For each chapter you must do the following:
+
+- The audio track at the end of each scene must be trimmed in time to the previous video frame and the ends of the video and audio tracks must be aligned so they have exactly the same duration.
+
+- Make sure the ends of the audio track don't contain undesirable fade ins/outs added by the editor that would ruin the seamlessness.
+
+- Audio must be rendered to a WAV file separately. We need the audio to remain in an uncompressed format to avoid the insertion of a {tilde}44 millisecond gap at the beginning, and as the video output format generally doesn't allow such a format we export audio to its own WAV file. The good news is that the audio only needs to be exported whenever it changes, which in my typical case means very rarely as I typically structure a scene around an unchanging voiceover.
+
+- Video must be rendered separately to a MP4 file, all with the same encoding parameters of course to make raw concatenation without re-encoding possible, and without audio.
+
+When using Vegas Pro there's one more thing I must keep in mind: making sure the loop region isn't set. The loop region isn't contained in the project and it's kept when closing a project and opening another (which is an atrocious idea), so restarting Vegas will make it go away.
+
+=== Then by scripting with FFMPEG
+
+FFMPEG can concatenate multiple video files into one without re-encoding them, all without problem provided that the video streams are encoded the same way. What must be done to achieve this is as follows:
+
+- Make two lists of files, one `video_concat_list.txt` and one `audio_concat_list.txt`, list the files in order of appearance in each file, for instance put "file '01. First scene.mp4'" as the first line of "video_concat_list.
+
+Example of `video_concat_list.txt`:
+
+----
+file '01. Intro.mp4'
+file '02. Some footage.mp4'
+file '03. Some more footage.mp4'
+file '04. Outro.mp4'
+----
+
+Example of `audio_concat_list.txt`:
+
+----
+file '01. Intro.wav'
+file '02. Some footage.wav'
+file '03. Some more footage.wav'
+file '04. Outro.wav'
+----
+
+You only need to update those files as you render more chapters of course.
+
+- Make a batch/bash file in the same folder as the list files and the video and audio files. Mine is called `concat.bat` and contains this:
+
+----
+"C:\msys\mingw64\bin\ffmpeg.exe" -safe 0 -f concat -i video_concat_list.txt -safe 0 -f concat -i audio_concat_list.txt -c:v copy -c:a aac -b:a 192k "concat.mp4"
+
+@echo off
+timeout /t 2 > nul
+----
+
+Of course you'll need to change the path to `ffmpeg.exe` to whatever it is for you. I use MSYS2's FFMPEG because it gets updated regularly along with the rest of the packages when running `pacman -Syuu`, without me having to ever worry about updating FFMPEG manually. What the FFMPEG command above does is that the video files in the list are treated as if they were one video stream, with one file coming after the other seamlessly, and the same is done with the audio files. The difference is that while the raw compressed frames of the video stream are copied over to the final file, the uncompressed audio stream is compressed to AAC (it can be any other supported codec that MP4 supports of course) with the given target bitrate.
+
+Running this script (in my case by double-clicking `concat.bat`) creates the concatenated MP4 file in just a few seconds (about 4 seconds for 4 minutes of output) and I run it after any time I re-render any scene, and just like that it gives me the final file that can be uploaded to YouTube.
