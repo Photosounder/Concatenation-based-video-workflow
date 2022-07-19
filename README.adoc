@@ -7,13 +7,13 @@ This is how I now produce tutorial videos, by creating separate videos for each 
 Creating YouTube videos that last several minutes or more containing many scenes can be difficult. There are two main problems with the naive approach:
 
 - Having a large video project in your video editor. Things can get quickly complicated and worse, you might choose to avoid doing radical changes to the timeline for fear of having to readjust too many things.
-- Rendering the large video all at once. Sure you can render only small sections to preview the result, but ultimately how will you see the video in its final state? By rendering the whole thing, which is going to take a long time every time, and you might find yourself doing that a lot more times than you expected.
+- Rendering the large video all at once. Sure you can render only small sections to preview the result, but ultimately how will you see the video in its final state? By rendering the whole thing, which is going to take a long time every time, and you might find yourself doing that many more times than you initially expected.
 
 == The solution
 
 My solution is to produce "chapters" completely independently from each other, render them as independent files, then join them together using a batch file that puts all the chapters together in just a few seconds without generation loss (the video streams aren't re-encoded). Usually there's a natural logical way to separate the contents of the video, which occur when there's a change in subject, when both the video and the audio switch to something different.
 
-So by producing these chapters as separate videos which are ideally 30 to 60 seconds long and contain no more than half a dozen different scenes or footage sources, the project for each of these chapters in the video editor remains simple and therefore flexible, the rendering time acceptable, and because of the concatenation approach which is done is just a very few seconds you can update a scene in a video of any duration and have the full length final video ready in a record time (like, under a minute).
+So by producing these chapters as separate videos which are ideally 30 to 60 seconds long and contain no more than half a dozen different scenes or footage sources, the project for each of these chapters in the video editor remains simple and therefore flexible, the rendering time acceptable, and because of the concatenation approach which is done in just a very few seconds you can update a scene in a video of any duration and have the full length final video ready in a record time (like, under a minute).
 
 However there are a few things to keep in mind, and there are technical problems to work around, like how you cannot use a compressed audio format for each chapter because they add an audible silent gap at the beginning of each video which gets in the way of obtaining a seamless result.
 
