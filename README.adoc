@@ -72,4 +72,4 @@ Of course you'll need to change the path to `ffmpeg.exe` to whatever it is for y
 
 Running this script (in my case by double-clicking `concat.bat`) creates the concatenated MP4 file in just a few seconds (about 4 seconds for 4 minutes of output) and I run it after any time I re-render any scene, and just like that it gives me the final file that can be uploaded to YouTube.
 
-Note that you can alter the script to handle files that contain an audio track and discard these audio tracks in FFMPEG using a remapping of streams. You can also preview individual chapters with some media players like the MPC family of players that will play separate video and audio files together as if they were one provided that the have the same name except for different extensions.
+Note that you can alter the script to handle files that contain an audio track and discard these audio tracks in FFMPEG using a remapping of streams. You can also preview individual chapters with some media players like the MPC family of players that will play separate video and audio files together as if they were one provided that they have the same name except for different extensions.
